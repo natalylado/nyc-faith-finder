@@ -1,51 +1,25 @@
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, MapPin, User, Heart } from "lucide-react";
+import { Clock, MapPin, User, Heart, Search as SearchIcon } from "lucide-react";
 import { useState } from "react";
+import { Event } from "@/types/events";
 
-const EventCalendar = () => {
+interface EventCalendarProps {
+  events: Event[];
+  searchTerm: string;
+  isSearching: boolean;
+}
+
+const EventCalendar = ({ events, searchTerm, isSearching }: EventCalendarProps) => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   
-  // Sample events for today
-  const todaysEvents = [
-    {
-      id: 1,
-      title: "Daily Mass",
-      time: "8:00 AM",
-      location: "St. Patrick's Cathedral",
-      organizer: "Cathedral Staff",
-      category: "Mass",
-      description: "Traditional Latin Mass with beautiful choral music"
-    },
-    {
-      id: 2,
-      title: "Eucharistic Adoration",
-      time: "12:00 PM - 6:00 PM",
-      location: "Church of St. Francis of Assisi",
-      organizer: "Fr. Michael",
-      category: "Holy Hour",
-      description: "Silent prayer and adoration before the Blessed Sacrament"
-    },
-    {
-      id: 3,
-      title: "Young Adults Prayer Group",
-      time: "7:00 PM",
-      location: "St. Agnes Church",
-      organizer: "Sarah Martinez",
-      category: "Prayer Group",
-      description: "Weekly prayer and fellowship for ages 22-35"
-    },
-    {
-      id: 4,
-      title: "Food Drive for the Homeless",
-      time: "10:00 AM - 2:00 PM",
-      location: "Holy Cross Church",
-      organizer: "Catholic Charities NYC",
-      category: "Social Event",
-      description: "Help collect and distribute food to those in need"
-    }
-  ];
+  // Filter events for the selected date
+  const selectedDateStr = date?.toISOString().split('T')[0];
+  const eventsForSelectedDate = events.filter(event => event.date === selectedDateStr);
+  
+  // Today's date for comparison
+  const todayStr = new Date().toISOString().split('T')[0];
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -57,10 +31,32 @@ const EventCalendar = () => {
         return "bg-accent text-cathedral-blue";
       case "Social Event":
         return "bg-secondary text-cathedral-blue";
+      case "Confession":
+        return "bg-muted text-cathedral-blue";
       default:
         return "bg-muted text-muted-foreground";
     }
   };
+
+  const getDisplayTitle = () => {
+    if (isSearching && searchTerm) {
+      return `Search Results for "${searchTerm}"`;
+    }
+    if (selectedDateStr === todayStr) {
+      return "Today's Events";
+    }
+    if (selectedDateStr && date) {
+      return `Events for ${date.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      })}`;
+    }
+    return "Select a Date";
+  };
+
+  const displayEvents = isSearching ? events : eventsForSelectedDate;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -103,42 +99,62 @@ const EventCalendar = () => {
           </CardContent>
         </Card>
 
-        {/* Today's Events */}
         <Card className="shadow-cathedral">
           <CardHeader className="bg-gradient-divine">
             <CardTitle className="text-cathedral-blue text-xl flex items-center gap-2">
-              <Heart className="w-5 h-5 text-sacred-gold" />
-              Today's Events
+              {isSearching ? (
+                <SearchIcon className="w-5 h-5 text-sacred-gold" />
+              ) : (
+                <Heart className="w-5 h-5 text-sacred-gold" />
+              )}
+              {getDisplayTitle()}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="space-y-4">
-              {todaysEvents.map((event) => (
-                <div key={event.id} className="border border-border rounded-lg p-4 hover:shadow-divine transition-shadow">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-cathedral-blue">{event.title}</h3>
-                    <Badge className={getCategoryColor(event.category)}>{event.category}</Badge>
+            {displayEvents.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                {isSearching ? (
+                  <div>
+                    <SearchIcon className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No events found matching your search criteria.</p>
+                    <p className="text-sm mt-2">Try adjusting your search terms or category filter.</p>
                   </div>
-                  
-                  <div className="space-y-2 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      <span>{event.time}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
-                      <span>{event.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      <span>Organized by {event.organizer}</span>
-                    </div>
+                ) : (
+                  <div>
+                    <Heart className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No events scheduled for this date.</p>
                   </div>
-                  
-                  <p className="text-sm text-foreground mt-2">{event.description}</p>
-                </div>
-              ))}
-            </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {displayEvents.map((event) => (
+                  <div key={event.id} className="border border-border rounded-lg p-4 hover:shadow-divine transition-shadow">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-semibold text-cathedral-blue">{event.title}</h3>
+                      <Badge className={getCategoryColor(event.category)}>{event.category}</Badge>
+                    </div>
+                    
+                    <div className="space-y-2 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        <span>{event.time}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4" />
+                        <span>{event.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        <span>Organized by {event.organizer}</span>
+                      </div>
+                    </div>
+                    
+                    <p className="text-sm text-foreground mt-2">{event.description}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

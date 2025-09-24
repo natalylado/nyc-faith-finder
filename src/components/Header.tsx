@@ -18,9 +18,17 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { EventCategory } from "@/types/events";
 import cathedralImage from "@/assets/st-patricks-cathedral.jpg";
 
-const Header = () => {
+interface HeaderProps {
+  searchTerm: string;
+  selectedCategory: EventCategory;
+  onSearchChange: (term: string) => void;
+  onCategoryChange: (category: EventCategory) => void;
+}
+
+const Header = ({ searchTerm, selectedCategory, onSearchChange, onCategoryChange }: HeaderProps) => {
   return (
     <header className="relative bg-gradient-cathedral text-divine-white shadow-cathedral">
       {/* Cathedral Background */}
@@ -54,19 +62,22 @@ const Header = () => {
                 <Search className="absolute left-3 top-3 h-4 w-4 text-divine-white/70" />
                 <Input
                   placeholder="Search events..."
+                  value={searchTerm}
+                  onChange={(e) => onSearchChange(e.target.value)}
                   className="pl-10 bg-divine-white/20 border-divine-white/30 text-divine-white placeholder:text-divine-white/70 focus:bg-divine-white/30"
                 />
               </div>
-              <Select>
+              <Select value={selectedCategory} onValueChange={onCategoryChange}>
                 <SelectTrigger className="w-40 bg-divine-white/20 border-divine-white/30 text-divine-white">
-                  <SelectValue placeholder="Category" />
+                  <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mass">Mass</SelectItem>
-                  <SelectItem value="holy-hour">Holy Hour</SelectItem>
-                  <SelectItem value="confession">Confession</SelectItem>
-                  <SelectItem value="prayer-group">Prayer Group</SelectItem>
-                  <SelectItem value="social-event">Social Event</SelectItem>
+                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="Mass">Mass</SelectItem>
+                  <SelectItem value="Holy Hour">Holy Hour</SelectItem>
+                  <SelectItem value="Confession">Confession</SelectItem>
+                  <SelectItem value="Prayer Group">Prayer Group</SelectItem>
+                  <SelectItem value="Social Event">Social Event</SelectItem>
                 </SelectContent>
               </Select>
             </div>
