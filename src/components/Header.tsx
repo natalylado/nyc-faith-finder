@@ -72,7 +72,7 @@ const Header = ({ searchTerm, selectedCategory, onSearchChange, onCategoryChange
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="all">All Categories</SelectItem>
                   <SelectItem value="Mass">Mass</SelectItem>
                   <SelectItem value="Holy Hour">Holy Hour</SelectItem>
                   <SelectItem value="Confession">Confession</SelectItem>

@@ -6,7 +6,7 @@ import { sampleEvents } from "@/data/sampleEvents";
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<EventCategory>("");
+  const [selectedCategory, setSelectedCategory] = useState<EventCategory>("all");
 
   // Filter events based on search term and category
   const filteredEvents = useMemo(() => {
@@ -17,13 +17,13 @@ const Index = () => {
         event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.organizer.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesCategory = selectedCategory === "" || event.category === selectedCategory;
+      const matchesCategory = selectedCategory === "all" || event.category === selectedCategory;
       
       return matchesSearch && matchesCategory;
     });
   }, [searchTerm, selectedCategory]);
 
-  const isSearching = searchTerm !== "" || selectedCategory !== "";
+  const isSearching = searchTerm !== "" || selectedCategory !== "all";
 
   return (
     <div className="min-h-screen bg-gradient-divine">
