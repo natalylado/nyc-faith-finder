@@ -47,6 +47,21 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Catholic theme colors
+        cathedral: {
+          blue: "hsl(var(--cathedral-blue))",
+          "blue-light": "hsl(var(--cathedral-blue-light))",
+        },
+        sacred: {
+          gold: "hsl(var(--sacred-gold))",
+          "gold-light": "hsl(var(--sacred-gold-light))",
+        },
+        divine: {
+          white: "hsl(var(--divine-white))",
+        },
+        stone: {
+          gray: "hsl(var(--stone-gray))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -84,6 +99,17 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "fade-in": "fade-in 0.5s ease-out",
+        "slide-up": "slide-up 0.3s ease-out",
+      },
+      backgroundImage: {
+        "gradient-cathedral": "var(--gradient-cathedral)",
+        "gradient-sacred": "var(--gradient-sacred)", 
+        "gradient-divine": "var(--gradient-divine)",
+      },
+      boxShadow: {
+        "cathedral": "var(--shadow-cathedral)",
+        "divine": "var(--shadow-divine)",
       },
     },
   },
