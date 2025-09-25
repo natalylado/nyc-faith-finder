@@ -9,4 +9,4 @@ export interface Event {
   description: string;
 }
 
-export type EventCategory = "Mass" | "Holy Hour" | "Confession" | "Prayer Group" | "Social Event" | "all";
+export type EventCategory = "Mass" | "Holy Hour" | "Confession" | "Prayer Group" | "Social Event" | "";
