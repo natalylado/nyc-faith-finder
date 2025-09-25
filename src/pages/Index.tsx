@@ -1,29 +1,38 @@
 import { useState, useMemo } from "react";
 import Header from "@/components/Header";
 import EventCalendar from "@/components/EventCalendar";
-import { EventCategory } from "@/types/events";
+import { EventCategory, Event } from "@/types/events";
 import { sampleEvents } from "@/data/sampleEvents";
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<EventCategory>("");
+  const [selectedCategory, setSelectedCategory] = useState<EventCategory>("all");
+  const [events, setEvents] = useState<Event[]>(sampleEvents);
 
   // Filter events based on search term and category
   const filteredEvents = useMemo(() => {
-    return sampleEvents.filter((event) => {
+    return events.filter((event) => {
       const matchesSearch = searchTerm === "" || 
         event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.organizer.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesCategory = selectedCategory === "" || event.category === selectedCategory;
+      const matchesCategory = selectedCategory === "all" || event.category === selectedCategory;
       
       return matchesSearch && matchesCategory;
     });
-  }, [searchTerm, selectedCategory]);
+  }, [events, searchTerm, selectedCategory]);
 
-  const isSearching = searchTerm !== "" || selectedCategory !== "";
+  const handleAddEvent = (newEvent: Omit<Event, 'id'>) => {
+    const eventWithId: Event = {
+      ...newEvent,
+      id: Math.max(...events.map(e => e.id), 0) + 1
+    };
+    setEvents(prevEvents => [...prevEvents, eventWithId]);
+  };
+
+  const isSearching = searchTerm !== "" || selectedCategory !== "all";
 
   return (
     <div className="min-h-screen bg-gradient-divine">
@@ -32,6 +41,7 @@ const Index = () => {
         selectedCategory={selectedCategory}
         onSearchChange={setSearchTerm}
         onCategoryChange={setSelectedCategory}
+        onAddEvent={handleAddEvent}
       />
       <EventCalendar 
         events={filteredEvents}

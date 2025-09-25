@@ -1,4 +1,5 @@
 import { Search, Plus } from "lucide-react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { EventCategory } from "@/types/events";
+import { EventCategory, Event } from "@/types/events";
 import cathedralImage from "@/assets/st-patricks-cathedral.jpg";
 
 interface HeaderProps {
@@ -26,9 +27,59 @@ interface HeaderProps {
   selectedCategory: EventCategory;
   onSearchChange: (term: string) => void;
   onCategoryChange: (category: EventCategory) => void;
+  onAddEvent: (event: Omit<Event, 'id'>) => void;
 }
 
-const Header = ({ searchTerm, selectedCategory, onSearchChange, onCategoryChange }: HeaderProps) => {
+const Header = ({ searchTerm, selectedCategory, onSearchChange, onCategoryChange, onAddEvent }: HeaderProps) => {
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    location: "",
+    organizer: "",
+    date: "",
+    time: "",
+    category: "Mass" as const
+  });
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.title || !formData.location || !formData.organizer || !formData.date || !formData.time) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    const newEvent: Omit<Event, 'id'> = {
+      title: formData.title,
+      description: formData.description,
+      location: formData.location,
+      organizer: formData.organizer,
+      date: formData.date,
+      time: formData.time,
+      category: formData.category as Event['category']
+    };
+
+    onAddEvent(newEvent);
+    
+    // Reset form
+    setFormData({
+      title: "",
+      description: "",
+      location: "",
+      organizer: "",
+      date: "",
+      time: "",
+      category: "Mass" as const
+    });
+    
+    setIsDialogOpen(false);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
   return (
     <header className="relative bg-gradient-cathedral text-divine-white shadow-cathedral">
       {/* Cathedral Background */}
@@ -72,7 +123,7 @@ const Header = ({ searchTerm, selectedCategory, onSearchChange, onCategoryChange
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="all">All Categories</SelectItem>
                   <SelectItem value="Mass">Mass</SelectItem>
                   <SelectItem value="Holy Hour">Holy Hour</SelectItem>
                   <SelectItem value="Confession">Confession</SelectItem>
@@ -83,7 +134,7 @@ const Header = ({ searchTerm, selectedCategory, onSearchChange, onCategoryChange
             </div>
             
             {/* Add Event Button */}
-            <Dialog>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="secondary" className="bg-sacred-gold hover:bg-sacred-gold-light text-cathedral-blue font-semibold shadow-divine">
                   <Plus className="w-4 h-4 mr-2" />
@@ -97,27 +148,93 @@ const Header = ({ searchTerm, selectedCategory, onSearchChange, onCategoryChange
                     Share your Catholic event with the NYC community
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4">
+                <form onSubmit={handleFormSubmit} className="space-y-4">
                   <div>
-                    <Label htmlFor="title" className="text-cathedral-blue font-medium">Event Title</Label>
-                    <Input id="title" placeholder="Enter event title" className="mt-1" />
+                    <Label htmlFor="title" className="text-cathedral-blue font-medium">Event Title *</Label>
+                    <Input 
+                      id="title" 
+                      placeholder="Enter event title" 
+                      className="mt-1"
+                      value={formData.title}
+                      onChange={(e) => handleInputChange('title', e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="date" className="text-cathedral-blue font-medium">Date *</Label>
+                      <Input 
+                        id="date" 
+                        type="date"
+                        className="mt-1"
+                        value={formData.date}
+                        onChange={(e) => handleInputChange('date', e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="time" className="text-cathedral-blue font-medium">Time *</Label>
+                      <Input 
+                        id="time" 
+                        type="time"
+                        className="mt-1"
+                        value={formData.time}
+                        onChange={(e) => handleInputChange('time', e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="category" className="text-cathedral-blue font-medium">Category</Label>
+                    <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Mass">Mass</SelectItem>
+                        <SelectItem value="Holy Hour">Holy Hour</SelectItem>
+                        <SelectItem value="Confession">Confession</SelectItem>
+                        <SelectItem value="Prayer Group">Prayer Group</SelectItem>
+                        <SelectItem value="Social Event">Social Event</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="location" className="text-cathedral-blue font-medium">Location *</Label>
+                    <Input 
+                      id="location" 
+                      placeholder="Event location" 
+                      className="mt-1"
+                      value={formData.location}
+                      onChange={(e) => handleInputChange('location', e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="organizer" className="text-cathedral-blue font-medium">Organizer *</Label>
+                    <Input 
+                      id="organizer" 
+                      placeholder="Event organizer" 
+                      className="mt-1"
+                      value={formData.organizer}
+                      onChange={(e) => handleInputChange('organizer', e.target.value)}
+                      required
+                    />
                   </div>
                   <div>
                     <Label htmlFor="details" className="text-cathedral-blue font-medium">Details</Label>
-                    <Textarea id="details" placeholder="Describe your event" className="mt-1" />
+                    <Textarea 
+                      id="details" 
+                      placeholder="Describe your event" 
+                      className="mt-1"
+                      value={formData.description}
+                      onChange={(e) => handleInputChange('description', e.target.value)}
+                    />
                   </div>
-                  <div>
-                    <Label htmlFor="location" className="text-cathedral-blue font-medium">Location</Label>
-                    <Input id="location" placeholder="Event location" className="mt-1" />
-                  </div>
-                  <div>
-                    <Label htmlFor="contact" className="text-cathedral-blue font-medium">Organizer Contact</Label>
-                    <Input id="contact" placeholder="Contact information" className="mt-1" />
-                  </div>
-                  <Button className="w-full bg-cathedral-blue hover:bg-cathedral-blue-light">
+                  <Button type="submit" className="w-full bg-cathedral-blue hover:bg-cathedral-blue-light">
                     Submit Event
                   </Button>
-                </div>
+                </form>
               </DialogContent>
             </Dialog>
           </div>
